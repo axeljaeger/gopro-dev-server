@@ -2,7 +2,7 @@
 import express from 'express'
 import fetch from 'node-fetch';
 
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, responseInterceptor } from 'http-proxy-middleware';
 
 import bonjour, { RemoteService } from 'bonjour'
 
@@ -16,7 +16,6 @@ const bonjourBrowser = bonjour()
 
 let cameraName = '';
 let cameraip : string | null = null;
-let openBrowser = false;
 
 async function getCameraName(goproip : string) : Promise<string> {
   // Fetch info from camera
@@ -40,9 +39,17 @@ async function cameraFound(service :  RemoteService) : Promise<void> {
 async function startCameraProxy() {
     if (cameraip) {
         cameraName = await getCameraName(cameraip);
-
         const goprourl = `http://${cameraip}`;
-        app.use('/gopro', createProxyMiddleware({ target: goprourl, changeOrigin: true }));
+        app.use('/gopro', createProxyMiddleware(
+            { 
+                target: goprourl, 
+                changeOrigin: true,
+                selfHandleResponse: true,
+                onProxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
+                    res.setHeader('Access-Control-Allow-Origin', 'https://axeljaeger.github.io');
+                    return responseBuffer; 
+                  }),
+            }));
         console.log(`Camera API available on http://localhost/${port}`);
     }
 }
@@ -66,15 +73,9 @@ Options:
                   determine the camera's IP for USB connection.
 
                   If none of the above specified, gopro-dev-server will try 
-                  to detect the camera in the local network.  
-
---open            Open browser after connecting to camera.`);
+                  to detect the camera in the local network.`);
     process.exit(0);
 } 
-
-if (args.includes('--open')) {
-    openBrowser = true;
-}
 
 if (args.includes('--ip')) {
     cameraip = args[args.indexOf('--ip') + 1];
@@ -85,15 +86,17 @@ if (args.includes('--ip')) {
     cameraip = `172.2${serialStub[0]}.1${serialStub[1]}${serialStub[2]}.51`;
 }
 
-if (cameraip) {
+//if (cameraip) {
     startCameraProxy();
-} else {
-    const browser = bonjourBrowser.find({ type: 'gopro-web' });
-    browser.on('up', cameraFound);
-    browser.start();
-}
+// } else {
+//     const browser = bonjourBrowser.find({ type: 'gopro-web' });
+//     browser.on('up', cameraFound);
+//     browser.start();
+// }
 
-app.use(express.static('./gopro-openapi.yml'));
 app.listen(port, () => {
-    console.log(`GoPro Development Server listening at http://localhost:${port}`)
+    console.log(
+        `GoPro Development Server listening at http://localhost:${port}
+         Camera IP: ${cameraip}
+         Browse the API using http://axeljaeger.github.io/gopro-openapi`);
 });
