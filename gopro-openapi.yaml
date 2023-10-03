@@ -1,0 +1,632 @@
+openapi: '3.0.2'
+info:
+  title: GoPro HTTP API as OpenAPI
+  version: '2.0'
+  description: > 
+    API Specification of the GoPro Action cam based on information provided by GoPro Inc. 
+    as part of Open GoPro.
+
+
+    *This product and/or service is not affiliated with, endorsed by or in any way associated 
+    with GoPro Inc. or its products and services. GoPro, HERO, and their respective logos 
+    are trademarks or registered trademarks of GoPro, Inc.*
+
+
+    Main source of information:
+
+externalDocs:
+  description: GoPro HTTP Specification v2.0
+  url: https://gopro.github.io/OpenGoPro/http_2_0
+    
+tags:
+  - name: Misc
+    description: Information about the camera version etc.
+  - name: Media
+    description: Accessing media on the camera
+  - name: Streaming
+    description: Controlling the live stream
+  - name: Webcam
+    description: Controlling the webcam mode
+  - name: Presets
+    description: Controlling the presets
+
+components:
+  parameters:
+    path:
+      name: path
+      in: query
+      schema:
+        type: string
+      required: true
+      description: The path of the file. Either photo or video.
+  schemas:
+    gpboolean:
+      description: GoPro uses the integer values of 0 and 1 instead of a boolean.
+      type: integer
+      enum: [0, 1]
+    Media List:
+      description: GoPro Media List
+      type: object
+      properties:
+        id: 
+          type: string
+          description: Media list session identifier.
+          example: "2257357766376644568"
+        media:
+          type: array
+          description: Contains media info for for each directory.
+          items:
+            type: object
+            properties:
+              d:
+                type: string
+                description: Directory name
+                example: "100GOPRO"
+              fs:
+                type: array
+                description: An array of files
+                items:
+                  type: object
+                  properties:
+                    n:
+                      type: string
+                      description: Media filename
+                      example: "GX010158.MP4"
+                    cre:
+                      type: string
+                      description: The creation time
+                      example: "1657834086"
+                    mod:
+                      type: string
+                      description: Time modified
+                      example: "1657834086"
+                    glrv:
+                      type: string
+                      description: Not documented
+                      example: "10327669"
+                    ls:
+                      type: string
+                      description: Low resolution video file size
+                      example: "-1"
+                    s:
+                      type: string
+                      description: Size of (group) media in bytes
+                      example: "136645508"
+  responses:
+    empty:
+      description: "Returns a empty object, e.g. `{}`"
+
+paths:
+  /gopro/version:
+    get:
+      tags:
+        - Misc
+      summary: Get version.
+      description: Get the HTTP API version. Either 1.0 or 2.0.
+      responses:
+        200:
+          description: "The version as JSON object"
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  version: 
+                    type: string
+                    description: Version of the API.
+                    example: "2.0"
+  /gopro/camera/analytics/set_client_info:
+    get:
+      tags:
+        - Misc
+      summary: Set third party client.
+      description: Set third party client id for usage statistics.
+      responses:
+        200:
+          $ref: '#/components/responses/empty'
+  /gopro/camera/digital_zoom:
+    get:
+      tags:
+        - Misc
+      summary: Set digital zoom.
+      description: Set the digital zoom level.
+      parameters:
+        - name: percent
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: The zoom level from 0 to 100.
+        
+      responses:
+        200:
+          description: Setting of the zoom level was successfull.
+        400:
+          description: > 
+            Setting of the zoom level was not successfull, e.g. a 
+            zoom level outside of the allowed range was requested
+
+  /gopro/camera/get_date_time:
+    get:
+      tags:
+        - Misc
+      summary: Get date/time
+      description: Get date/time        
+      responses:
+        200:
+          description: "The date time"
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  date: 
+                    type: string
+                    description: The date as string as in YYYY_MM_DD.
+                  time: 
+                    type: string
+                    description: The time as string as in HH_MM_SS.
+                    
+  /gopro/camera/set_date_time:
+    get:
+      tags:
+        - Misc
+      summary: Set date/time
+      description: Set date/time
+      parameters:
+        - in: query
+          name: date
+          description: Date
+          required: true
+          schema:
+            type: string
+          examples:
+            2022_1_31:
+              summary: January, 31st, 2022
+              value: 2022_1_31
+        - in: query
+          name: time
+          description: Time
+          required: true
+          schema:
+            type: string
+          examples:
+            3_4_5:
+              summary: 03:04:05
+              value: 3_4_5
+        - in: query
+          name: tzone
+          description: Timezone
+          required: false
+          schema:
+            type: integer
+          examples:
+            utc-02:00:
+              summary: utc-02:00
+              value: -120
+        - in: query
+          name: dst
+          description: Timezone
+          required: false
+          schema:
+            $ref: "#/components/schemas/gpboolean"
+          examples:
+            on:
+              summary: Dst on
+              value: 1
+      responses:
+        200:
+          description: "TBD"
+
+
+  /gopro/camera/keep_alive:
+    get:
+      tags:
+        - Misc
+      summary: Keep-alive
+      description: Send keep-alive
+      responses:
+        200:
+          $ref: '#/components/responses/empty'
+  /gopro/media/gpmf:
+    get:
+      tags:
+        - Media
+      summary: Get GPMF
+      description: Get GPMF data of a given file.
+      parameters:
+        - $ref: '#/components/parameters/path'
+      responses:
+        200:
+          description: "T"
+  /gopro/media/highlight/file:
+    get:
+      tags:
+        - Media
+      summary: Add highlight
+      description: Add highlight to media file. 
+      parameters:
+        - $ref: '#/components/parameters/path'
+        - name: ms
+          in: query
+          schema:
+            type: integer
+          required: false
+          description: The time of the highlight in milliseconds.
+      responses:
+        200:
+          description: "T"
+  /gopro/media/highlight/remove:
+    get:
+      tags:
+        - Media
+      summary: Remove highlight
+      description: Remove hilight from a media file. 
+      parameters:
+        - $ref: '#/components/parameters/path'
+        - name: ms
+          in: query
+          schema:
+            type: integer
+          required: false
+          description: The time of the highlight in milliseconds.
+      responses:
+        200:
+          description: "T"
+  /gopro/media/highlight/moment:
+    get:
+      tags:
+        - Media
+      summary: Highlight Moment
+      description: Highlight moment during encoding.
+      responses:
+        200:
+          description: "T"
+  /gopro/media/info:
+    get:
+      tags:
+        - Media
+      summary: Add highlight
+      description: Add highlight to media file. 
+      parameters:
+        - $ref: '#/components/parameters/path'
+      responses:
+        200:
+          description: "T"
+  /gopro/media/screennail:
+    get:
+      tags:
+        - Media
+      summary: Get Screennail
+      description: Get Screennail for media file 
+      parameters:
+        - $ref: '#/components/parameters/path'
+      responses:
+        200:
+          description: "T"
+  /gopro/media/telemetry:
+    get:
+      tags:
+        - Media
+      summary: Get Telemetry stream
+      description: Get Telemetry track data for media file. 
+      parameters:
+        - $ref: '#/components/parameters/path'
+      responses:
+        200:
+          description: "T"
+  /gopro/media/thumbnail:
+    get:
+      tags:
+        - Media
+      summary: Get Thumbnail
+      description: Get Thumbnail for media file. 
+      parameters:
+        - $ref: '#/components/parameters/path'
+      responses:
+        200:
+          description: "T"
+  /gopro/media/turbo_transfer:
+    get:
+      tags:
+        - Media
+      summary: "Turbo Transfer: Enable/Disable"
+      description: Enable/Disable Turbe Transfer Mode
+      parameters:
+        - in: query
+          name: p
+          description: Whether to enable or disable
+          required: true
+          schema:
+            $ref: '#/components/schemas/gpboolean'
+          examples:
+            Enable:
+              summary: Enable Turbo Transfer
+              value: 1
+            Disable:
+              summary: Disable Turbo Transfer
+              value: 0
+      responses:
+        200:
+          description: OK
+
+  /gopro/camera/control/wired_usb:
+    get:
+      tags:
+        - Misc
+      summary: "USB control: Enable/Disable"
+      description: Enable/Disable wired USB control
+      parameters:
+        - in: query
+          name: p
+          description: Whether to enable or disable
+          required: true
+          schema: 
+            $ref: '#/components/schemas/gpboolean'
+          examples:
+            Enable:
+              summary: Enable USB control
+              value: 1
+            Disable:
+              summary: Disable USB control
+              value: 0
+      responses:
+        200:
+          description: Operation successfull
+        500:
+          description: > 
+            Operation was not successfull. This happens when your command
+            does not result in a change of status, e.g. you tried to...:
+
+
+            * ...enable USB control although USB control is already enabled
+
+
+            * ...disable USB control although USB control is already disabled
+  /gopro/camera/state:
+    get:
+      tags:
+        - Streaming
+      summary: "Camera: Get State."
+      description: Get camera state (status + settings)
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  a:
+                    type: number
+                    description: Description
+  /gopro/camera/stream/start:
+    get:
+      tags:
+        - Streaming
+      summary: "Stream: Start"
+      description: Start preview stream
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  a:
+                    type: number
+                    description: Description
+##############################
+## Webcam methods
+##############################
+  /gopro/webcam/version:
+    get:
+      tags:
+        - Webcam
+      summary: "Webcam API version"
+      description: Get webcam api version
+      responses:
+        200:
+          description: OK
+          
+  /gopro/webcam/status:
+    get:
+      tags:
+        - Webcam
+      summary: "Webcam API status"
+      description: Get webcam API state
+      responses:
+        200:
+          description: OK
+  /gopro/webcam/preview:
+    get:
+      tags:
+        - Webcam
+      summary: "Webcam Preview: Start"
+      description: Start webcam preview stream
+      responses:
+        200:
+          description: OK
+  /gopro/webcam/start:
+    get:
+      tags:
+        - Webcam
+      summary: "Webcam Start"
+      description: Start webcam stream
+      parameters:
+        - name: res
+          in: query
+          schema:
+            type: integer
+          description: Resolution
+          examples:
+            480:
+              summary: Resolution of 480
+              value: 4
+            720:
+              summary: Resolution of 720
+              value: 7
+            1080:
+              summary: Resolution of 1080
+              value: 12
+        - name: fov
+          in: query
+          schema:
+            type: integer
+          required: false
+          description: Field of view
+          examples:
+            WIDE:
+              summary: Wide
+              value: 0
+            NARROW:
+              summary: Narrow
+              value: 2
+            SUPERVIEW:
+              summary: Superview
+              value: 3
+            LINEAR:
+              summary: Linear
+              value: 4
+
+      responses:
+        200:
+          description: OK
+  /gopro/webcam/stop:
+    get:
+      tags:
+        - Webcam
+      summary: "Webcam Stop"
+      description: Stop the webcam mode
+      responses:
+        200:
+          description: OK
+  /gopro/webcam/exit:
+    get:
+      tags:
+        - Webcam
+      summary: "Webcam Exit"
+      description: Exit webcam mode
+      responses:
+        200:
+          description: OK
+##########################
+## Media
+##########################
+  /gopro/media/list:
+    get:
+      tags:
+        - Media
+      summary: "List of media"
+      description: Get the list of media.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Media List'
+            
+##########################
+# Shutter
+##########################
+  /gopro/camera/shutter/start:
+    get:
+      tags:
+        - Misc
+      summary: "Shutter: On"
+      description: Open the shutter
+      responses:
+        200:
+          description: OK
+  /gopro/camera/shutter/stop:
+    get:
+      tags:
+        - Misc
+      summary: "Shutter: Off"
+      description: Close the shutter
+      responses:
+        200:
+          description: OK
+##########################
+# Camera control status
+##########################
+  /gopro/camera/control/set_ui_controller:
+    get:
+      tags:
+        - Misc
+      summary: "Camera Control"
+      description: Set Camera Control Status
+      parameters:
+        - in: query
+          name: p
+          description: The mode
+          required: true
+          schema: 
+            type: integer
+            enum: [0, 2]
+          examples:
+            idle:
+              summary: Idle
+              value: 0
+            external_control:
+              summary: External Control
+              value: 2
+      responses:
+        200:
+          description: OK
+##########################
+# Presets
+##########################
+  /gopro/camera/presets/get:
+    get:
+      tags:
+        - Presets
+      summary: "Get presets"
+      description: Get preset status
+      responses:
+        200:
+          description: OK
+  /gopro/camera/presets/load:
+    get:
+      tags:
+        - Presets
+      summary: "Load preset"
+      description: Load a preset
+      parameters:
+        - in: query
+          name: id
+          description: The preset id
+          required: true
+          schema: 
+            type: integer
+      responses:
+        200:
+          description: OK
+  /gopro/camera/presets/set_group:
+    get:
+      tags:
+        - Presets
+      summary: "Set preset group"
+      description: Set preset group
+      parameters:
+        - in: query
+          name: id
+          description: The group id
+          required: true
+          schema: 
+            type: integer
+          examples:
+            video:
+              summary: Group Video
+              value: 1000
+            photo:
+              summary: Group Photo
+              value: 1001
+            timelapse:
+              summary: Group Timelapse
+              value: 1002
+      responses:
+        200:
+          description: OK
