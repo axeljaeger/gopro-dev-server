@@ -4,15 +4,11 @@ import fetch from 'node-fetch';
 
 import { createProxyMiddleware, responseInterceptor } from 'http-proxy-middleware';
 
-import bonjour, { RemoteService } from 'bonjour'
-
 // from https://stackoverflow.com/questions/23483855/javascript-regex-to-validate-ipv4-and-ipv6-address-no-hostnames
 const ipv4_regex = /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/gm;   
 
 const app = express()
 const port = 3006
-
-const bonjourBrowser = bonjour()
 
 let cameraName = '';
 let cameraip : string | null = null;
@@ -28,12 +24,6 @@ async function getCameraName(goproip : string) : Promise<string> {
     console.log(e);
   }
   return '';
-}
-
-async function cameraFound(service :  RemoteService) : Promise<void> {
-  console.log('Found a gopro', service)
-  cameraip = service.addresses.find(candidate => ipv4_regex.test(candidate)) ?? service.referer.address;
-  startCameraProxy();
 }
 
 async function startCameraProxy() {
@@ -86,17 +76,11 @@ if (args.includes('--ip')) {
     cameraip = `172.2${serialStub[0]}.1${serialStub[1]}${serialStub[2]}.51`;
 }
 
-//if (cameraip) {
-    startCameraProxy();
-// } else {
-//     const browser = bonjourBrowser.find({ type: 'gopro-web' });
-//     browser.on('up', cameraFound);
-//     browser.start();
-// }
+startCameraProxy();
 
 app.listen(port, () => {
     console.log(
-        `GoPro Development Server listening at http://localhost:${port}
-         Camera IP: ${cameraip}
-         Browse the API using http://axeljaeger.github.io/gopro-openapi`);
+`GoPro Development Server listening at http://localhost:${port}
+Camera IP: ${cameraip}
+Browse the API using http://axeljaeger.github.io/gopro-openapi`);
 });
