@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/axeljaeger/gopro-dev-server#readme",
   "dependencies": {
+    "commander": "^11.0.0",
     "express": "^4.18.1",
     "http-proxy-middleware": "^2.0.6",
     "node-fetch": "^2.6.7",
