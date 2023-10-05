@@ -71,4 +71,6 @@ if (opts.ip) {
 
 if (cameraip) {
   startCameraProxy(cameraip);
+} else {
+  program.help();
 }
