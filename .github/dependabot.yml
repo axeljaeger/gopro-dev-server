@@ -10,7 +10,7 @@ updates:
     schedule:
       interval: "daily"
     groups:
-      jest:
+      node-fetch:
         patterns:
             - "node-fetch"
             - "@types/node-fetch"
