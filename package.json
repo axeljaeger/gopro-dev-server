@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "generate && tsc",
     "start": "nodemon index.ts",
     "generate": "openapi-generator-cli generate -i https://raw.githubusercontent.com/gopro/OpenGoPro/main/docs/specs/.openapi.yml -g typescript-fetch --additional-properties='importFileExtension=.js' -o ./generate --skip-validate-spec"
   },
