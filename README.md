@@ -6,7 +6,7 @@
 <span class="badge-npmdownloads"><a href="https://www.npmjs.com/package/@axeljaeger/gopro-dev-server" title="View this project on NPM"><img src="https://img.shields.io/npm/dm/@axeljaeger/gopro-dev-server.svg" alt="NPM downloads" /></a></span>
 
 GoPro cameras provide an HTTP API that is available in [OpenAPI format](https://gopro.github.io/OpenGoPro/http) from GoPro Inc.
-However, you cannot use interactive features of their Redocly their website cannot connect to your camera.
+However, you cannot use interactive features of their Redocly as their website cannot connect to your camera.
 
 This tool provides everything needed to interact with your camera using Swagger-UI:
 - A proxy server that allows CORS requests from your browser to the camera.
@@ -16,7 +16,7 @@ Usage:
 
 Install the tool using npm:
 ```
-npm install @axeljaeger/gopro-devserver
+npm install @axeljaeger/gopro-dev-server
 ```
 
 Depending on whether you are connecting the camera via USB or WiFi, the procedure is different:
@@ -25,7 +25,7 @@ USB:
 - Obtain the last 3 digits of your camera serial number.
 - Run the tool, providing the serial number 
  ```
- npx gopro-devserver --usb 123
+ npx gopro-dev-server --usb 123
  ``` 
 A browser will open and you can interact with your camera
 
@@ -36,5 +36,5 @@ I provide a PWA, [GoPro Wifi Enabler](https://axeljaeger.github.io/gopro-wifi-en
 
 After you joined your camera's wifi, run the tool:
 ```
-npx gopro-devserver --wifi
+npx gopro-dev-server --wifi
 ```
