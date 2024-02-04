@@ -11,8 +11,8 @@ import open from 'open';
 
 import { absolutePath } from 'swagger-ui-dist';
 
-async function getCameraName(cameraIp: string): Promise<string> {  
-  const configuration = new Configuration({basePath: `http://${cameraIp}`});
+const getCameraName = async (cameraIp: string): Promise<string> => {
+  const configuration = new Configuration({ basePath: `http://${cameraIp}` });
   const api = new QueryApi(configuration);
   try {
     const response = await api.oGPGETSTATE();
@@ -24,13 +24,14 @@ async function getCameraName(cameraIp: string): Promise<string> {
   return '';
 }
 
-const startSwaggerServer = (app : express.Express) => {
+const startSwaggerServer = (app: express.Express) => {
   const pathToSwaggerUi = absolutePath();
+  const apiUrl = "https://raw.githubusercontent.com/gopro/OpenGoPro/main/docs/specs/.openapi.yml";
   app.get('/swagger-initializer.js', (req, res, next) => {
     res.send(`
     window.onload = function() {  
       window.ui = SwaggerUIBundle({
-        url: "https://raw.githubusercontent.com/gopro/OpenGoPro/main/docs/specs/.openapi.yml",
+        url: "${apiUrl}",
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
@@ -64,24 +65,24 @@ const startSwaggerServer = (app : express.Express) => {
   app.use(express.static(pathToSwaggerUi))
 }
 
-const startCameraProxy = async (app : express.Express, cameraIp : string) => {
-    const goprourl = `http://${cameraIp}`;
-    app.use('/gopro', createProxyMiddleware(
+const startCameraProxy = async (app: express.Express, cameraIp: string) => {
+  const goprourl = `http://${cameraIp}`;
+  app.use('/gopro', createProxyMiddleware(
     {
-        target: goprourl,
-        changeOrigin: true,
-        selfHandleResponse: true,
-        onProxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          return responseBuffer;
-        }),
+      target: goprourl,
+      changeOrigin: true,
+      selfHandleResponse: true,
+      onProxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        return responseBuffer;
+      }),
     }));
-  };
-  
+};
+
 
 const main = async () => {
   const port = 3006
-  
+
   const program = new Command();
   program
     .name("gopro-dev-server")
@@ -106,29 +107,26 @@ const main = async () => {
   }
 
   if (cameraip !== null) {
-    getCameraName(cameraip).then((cameraName) => {
-      if (cameraName) {
-        const app = express();
-        startCameraProxy(app, cameraip!);
-        startSwaggerServer(app);
+    const cameraName = await getCameraName(cameraip);
+    if (cameraName) {
+      const app = express();
+      startCameraProxy(app, cameraip!);
+      startSwaggerServer(app);
 
-        app.listen(port, () => {
-          console.log(
-            `GoPro Development Server listening at http://localhost:${port}
+      app.listen(port, () => {
+        console.log(
+          `GoPro Development Server listening at http://localhost:${port}
 Camera Name: ${cameraName}
 Camera IP: ${cameraip}`);
-          open(`http://localhost:${port}`);
-        });
-      }
-      else {
-        console.log(`Could not connect to camera at ${cameraip}.`);
-      }
-    });
+        open(`http://localhost:${port}`);
+      });
+    }
+    else {
+      console.log(`Could not connect to camera at ${cameraip}.`);
+    }
   } else {
     program.help();
   }
 }
-
-export default main;
 
 await main();
