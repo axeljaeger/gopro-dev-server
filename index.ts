@@ -6,7 +6,7 @@ import { createProxyMiddleware, responseInterceptor } from 'http-proxy-middlewar
 import { Command } from 'commander';
 
 import { QueryApi } from './generate/apis/QueryApi.js';
-import { Configuration } from './generate/index.js';
+import { Configuration } from './generate/runtime.js';
 
 import open from 'open';
 
