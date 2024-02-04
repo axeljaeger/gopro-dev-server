@@ -25,7 +25,7 @@ USB:
 - Obtain the last 3 digits of your camera serial number.
 - Run the tool, providing the serial number 
  ```
- npx gopro-dev-server --usb 123
+ npx gopro-dev-server --usb-serial 123
  ``` 
 A browser will open and you can interact with your camera
 
