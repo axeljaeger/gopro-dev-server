@@ -1,12 +1,13 @@
 {
   "name": "@axeljaeger/gopro-dev-server",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "type": "module",
   "description": "Development server for the GoPro HTTP API",
   "main": "dist/index.js",
   "bin": {
     "gopro-dev-server": "./dist/index.js"
   },
+  "files": ["./dist"],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
