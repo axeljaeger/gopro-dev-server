@@ -65,7 +65,7 @@ const startSwaggerServer = (app: express.Express) => {
   app.use(express.static(pathToSwaggerUi))
 }
 
-const startCameraProxy = async (app: express.Express, cameraIp: string) => {
+const startCameraProxy = async (app: express.Express, cameraIp: string, port: number) => {
   const goprourl = `http://${cameraIp}`;
   app.use('/gopro', createProxyMiddleware(
     {
@@ -73,7 +73,7 @@ const startCameraProxy = async (app: express.Express, cameraIp: string) => {
       changeOrigin: true,
       selfHandleResponse: true,
       onProxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Origin', `localhost:${port}`);
         return responseBuffer;
       }),
     }));
@@ -110,7 +110,7 @@ const main = async () => {
     const cameraName = await getCameraName(cameraip);
     if (cameraName) {
       const app = express();
-      startCameraProxy(app, cameraip!);
+      startCameraProxy(app, cameraip!, port);
       startSwaggerServer(app);
 
       app.listen(port, () => {
@@ -123,6 +123,9 @@ Camera IP: ${cameraip}`);
     }
     else {
       console.log(`Could not connect to camera at ${cameraip}.`);
+      if (opts.wifi) {
+        console.log(`Make sure you are connected to the camera's wifi network.`);
+      }
     }
   } else {
     program.help();
