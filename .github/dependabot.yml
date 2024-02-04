@@ -10,7 +10,12 @@ updates:
     schedule:
       interval: "daily"
     groups:
-      node-fetch:
+      request:
         patterns:
-            - "node-fetch"
-            - "@types/node-fetch"
+            - "request"
+            - "@types/request"
+      express:
+        patterns:
+            - "express"
+            - "@types/express"
+      
