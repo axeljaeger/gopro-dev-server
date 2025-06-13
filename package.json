@@ -40,7 +40,7 @@
     "open": "^10.0.3",
     "request": "^2.88.2",
     "swagger-ui-dist": "^5.11.2",
-    "typescript": "5.7.2"
+    "typescript": "5.8.3"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.9.0",
