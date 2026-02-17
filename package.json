@@ -37,7 +37,7 @@
     "express": "^5.1.0",
     "http": "^0.0.1-security",
     "http-proxy-middleware": "^3.0.2",
-    "open": "^10.0.3",
+    "open": "^11.0.0",
     "request": "^2.88.2",
     "swagger-ui-dist": "^5.11.2",
     "typescript": "5.9.3"
